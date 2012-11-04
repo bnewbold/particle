@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Particle Game
+Untitled #005 ("Particle Game")
 November 2012
 
 Acknowledgements:

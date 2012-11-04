@@ -39,12 +39,10 @@ class Particle(object):
         return "Particle <%s, %s>"%(self.currentPos[0], self.currentPos[1])
 
     def get_pos(self):
-        # TODO: this should return a COPY, not the object itself
-        return self.currentPos
+        return Vec2d(self.currentPos)
 
     def get_velocity(self):
-        # TODO: this should return a COPY, not the object itself
-        return self.velocity
+        return Vec2d(self.velocity)
 
     def set_pos(self, position):
         """Set the position of the gravity force."""
