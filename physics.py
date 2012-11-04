@@ -1,10 +1,7 @@
 
-import sys
 from math import sqrt
-
 from vec2d import Vec2d
-import pygame
-from pygame.locals import *
+from pygame.locals import Color
 
 from settings import *
 
@@ -31,23 +28,15 @@ class Particle(object):
     """
     Stores position and velocity.
     """
-    def __init__(self, screen, currentPos):
+    def __init__(self, currentPos):
         # Current Position
         self.currentPos = Vec2d(currentPos)
         self.velocity = Vec2d(0, 0)
         # Should the particle be locked at its current position?
         self.color = Color('white')
-        self.screen = screen
 
     def __str__(self):
         return "Particle <%s, %s>"%(self.currentPos[0], self.currentPos[1])
-
-    def draw(self):
-        # Draw a circle at the given Particle.
-        screenPos = (self.currentPos[0], self.currentPos[1])
-        pygame.draw.circle(self.screen, self.color, (int(screenPos[0]),
-                                                     int(screenPos[1])), 
-                                                     P_SIZE, 0)
 
     def get_pos(self):
         # TODO: this should return a COPY, not the object itself
@@ -100,10 +89,9 @@ class Particle(object):
 
 
 class ParticleSystem(list):
-    def __init__(self, screen, rows=16, columns=16, margin=MARGIN, offset=OFFSET):
+    def __init__(self, rows=16, columns=16, margin=MARGIN, offset=OFFSET):
         super(ParticleSystem, self).__init__()
 
-        self.screen = screen
         self.rows = rows
         self.columns = columns
         self.margin = margin
@@ -113,12 +101,8 @@ class ParticleSystem(list):
         for x in range(columns):
             for y in range(rows):
                 currentPos = (x*self.margin+self.offset, y*self.margin+self.offset)
-                self.append(Particle(self.screen, currentPos))
+                self.append(Particle(currentPos))
 
-    def draw(self):
-        """Draw the particle system onto the screen."""
-        for particle in self:
-            particle.draw()
 
     def reset(self):
         """Reset particles to default position."""

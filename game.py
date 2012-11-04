@@ -18,6 +18,21 @@ from pygame.locals import *
 from settings import *
 import physics
 
+def draw_particle(particle, screen):
+    # Draw a circle at the given Particle.
+    screenPos = (particle.currentPos[0], particle.currentPos[1])
+    pygame.draw.circle(screen,
+                       particle.color,
+                       (int(screenPos[0]), int(screenPos[1])), 
+                       P_SIZE,
+                       0)
+
+
+def draw_particle_system(ps, screen):
+    """Draw the particle system onto the screen."""
+    for particle in ps:
+        draw_particle(particle, screen)
+
 def main():
     # Initial setup
     global ANTIGRAVITY # TODO: get rid of this global variable
@@ -26,7 +41,7 @@ def main():
     clock = pygame.time.Clock()
 
     # Create a grid of particles
-    particleSystem = physics.ParticleSystem(screen, rows=ROWS, columns=COLUMNS)
+    particleSystem = physics.ParticleSystem(rows=ROWS, columns=COLUMNS)
     backgroundCol = Color('black')
 
     # Initialize variables
@@ -93,7 +108,7 @@ def main():
             particleSystem.reset()
             reset_flag = False
         particleSystem.step(delta_t, g_force)
-        particleSystem.draw()
+        draw_particle_system(particleSystem, screen)
 
         # Update the display
         pygame.display.update()
