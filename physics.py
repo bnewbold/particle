@@ -1,4 +1,6 @@
 
+import random
+
 from math import sqrt
 from vec2d import Vec2d
 from pygame.locals import Color
@@ -23,6 +25,58 @@ class GravityForce(object):
             position = Vec2d(position)
         self.position = position
 
+
+class ParticleSource(object):
+    def __init__(self, position, vector, rate, count):
+        self.position = position
+        self.vector = vector
+        self.rate = float(rate)
+        self.count = int(count)
+        self.delta_t = 0    # time since last fire (milliseconds)
+
+    def step(self, delta_t, particle_system):
+        """Step delta_t seconds forward in time.
+       
+        If it's time to fire a shot and count hasn't been exceeded, fire a new
+        particle
+        """
+        self.delta_t = self.delta_t + delta_t
+        if self.delta_t > (1000. / self.rate):
+            if self.count > 0:
+                self.fire(particle_system)
+            self.delta_t = 0.0
+
+    def fuzz(self):
+        return Vec2d(random.random(),
+                     random.random())
+
+    def fire(self, particle_system):
+        self.count -= 1
+        p = Particle(self.position)
+        # TODO: plus randomness
+        p.set_velocity(self.vector + self.fuzz())
+        particle_system.append(p)
+        debug("squirt: %s" % p)
+        
+
+class ParticleSink(object):
+    def __init__(self, position, radius):
+        self.count = 0
+        self.position = position
+        self.radius = float(radius)
+
+    def gobble(self, particle_system):
+        kill_list = []
+        for i in range(len(particle_system)):
+            p = particle_system[i]
+            if self.radius > abs((self.position - p.get_pos()).get_length()):
+                kill_list.append(i)
+        kill_list.sort(reverse=True)
+        for i in kill_list:
+            debug("killing: %s" % i)
+            # actually kill
+            particle_system.pop(i)
+            self.count += 1
 
 class Particle(object):
     """
@@ -95,12 +149,21 @@ class ParticleSystem(list):
         self.margin = margin
         self.offset = offset
 
+        self.sources = []
+        self.sinks = []
+
         # initialize particles
         for x in range(columns):
             for y in range(rows):
                 currentPos = (x*self.margin+self.offset, y*self.margin+self.offset)
                 self.append(Particle(currentPos))
 
+
+    def add_source(self, source):
+        self.sources.append(source)
+
+    def add_sink(self, sink):
+        self.sinks.append(sink)
 
     def reset(self):
         """Reset particles to default position."""
@@ -118,3 +181,7 @@ class ParticleSystem(list):
         gravitational force (g_force)."""
         for particle in self:
             particle.step(delta_t, g_force)
+        for source in self.sources:
+            source.step(delta_t, self)
+        for sink in self.sinks:
+            sink.gobble(self)

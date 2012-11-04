@@ -44,6 +44,12 @@ def main():
     particleSystem = physics.ParticleSystem(rows=ROWS, columns=COLUMNS)
     backgroundCol = Color('black')
 
+    # FUDGY
+    particleSystem.add_source(
+        physics.ParticleSource((100, 100), (1, 1), 10, 99999.))
+    particleSystem.add_sink(
+        physics.ParticleSink((300, 300), 20))
+
     # Initialize variables
     g_force = None
     reset_flag = False
